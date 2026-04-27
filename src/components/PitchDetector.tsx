@@ -2,7 +2,6 @@ import { usePitchDetector } from '../hooks/usePitchDetector';
 
 interface PitchDetectorProps {
   onNoteDetected: (note: string) => void;
-  isActive: boolean;
   onToggle: () => void;
 }
 

@@ -18,7 +18,7 @@ export function GameMode({ songId, onBack }: GameModeProps) {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<FeedbackType>(null);
   const [completed, setCompleted] = useState(false);
-  const [micActive, setMicActive] = useState(false);
+  const [, setMicActive] = useState(false);
   const [sparkle, setSparkle] = useState(false);
   const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -111,7 +111,7 @@ export function GameMode({ songId, onBack }: GameModeProps) {
 
       {/* Mic control */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-        <PitchDetector onNoteDetected={handleNotePlay} isActive={micActive} onToggle={() => setMicActive(a => !a)} />
+        <PitchDetector onNoteDetected={handleNotePlay} onToggle={() => setMicActive(a => !a)} />
       </div>
 
       {/* Piano */}
