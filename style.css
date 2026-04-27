@@ -193,6 +193,25 @@ button:active {
   font-weight: normal;
 }
 
+/* Scrolling sheet music viewport (game screen) */
+.sheet-scroll-outer {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  /* scrollbar hidden for a clean flowing look */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sheet-scroll-outer::-webkit-scrollbar {
+  display: none;
+}
+
+.sheet-scroll-outer svg {
+  display: block;
+}
+
 /* ── Feedback ───────────────────────────────────────────────────────────────── */
 .feedback {
   text-align: center;
