@@ -43,8 +43,18 @@ export function usePitchDetector(onNoteDetected: (note: string) => void) {
         animFrameRef.current = requestAnimationFrame(detect);
       };
       detect();
-    } catch {
-      setError('Microphone access denied. Please allow microphone access.');
+    } catch (e) {
+      if (e instanceof DOMException) {
+        if (e.name === 'NotAllowedError') {
+          setError('Microphone access denied. Please allow microphone access.');
+        } else if (e.name === 'NotFoundError') {
+          setError('No microphone found. Please connect a microphone.');
+        } else {
+          setError(`Microphone error: ${e.message}`);
+        }
+      } else {
+        setError('Could not access microphone. Please check your browser settings.');
+      }
     }
   }, [onNoteDetected]);
 
