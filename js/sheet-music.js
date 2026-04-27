@@ -28,7 +28,6 @@ const NOTE_COLOR_PAST    = '#c8c8c8';
 const NOTE_COLOR_FUTURE  = '#222222';
 
 const NOTES_PER_ROW = 8;
-const STAVE_WIDTH = 640;
 const STAVE_X = 10;
 const ROW_HEIGHT = 130;
 const STAVE_Y_BASE = 20;
@@ -48,6 +47,9 @@ export function initScrollingSheet(container, notes) {
   if (!VF || !VF.Renderer) return { update: () => {} };
 
   const { Renderer, Stave, StaveNote, Formatter, Voice, Accidental } = VF;
+
+  // Adapt stave width to the available container width for mobile friendliness
+  const STAVE_WIDTH = Math.max((container.offsetWidth || 660) - 30, 320);
 
   const numRows = Math.ceil(notes.length / NOTES_PER_ROW);
   const totalHeight = STAVE_Y_BASE + numRows * ROW_HEIGHT + 30;
