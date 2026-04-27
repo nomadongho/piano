@@ -8,7 +8,7 @@ function getSynth() {
       oscillator: { type: 'triangle' },
       envelope: { attack: 0.02, decay: 0.3, sustain: 0.4, release: 1.2 },
     }).toDestination();
-    synth.volume.value = -6;
+    synth.volume.value = 0;
   }
   return synth;
 }
