@@ -2,6 +2,7 @@ import { SONGS } from './songs.js';
 import { createPiano } from './piano.js';
 import { initScrollingSheet, renderFreePlaySheet } from './sheet-music.js';
 import { startListening, stopListening, isListening } from './pitch-detector.js';
+import { playSong, stopSong } from './tone-player.js';
 
 const LEVEL_COLORS = [
   'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -32,15 +33,21 @@ let sheetInstance = null;
 let feedbackEl = null;
 let progressFill = null;
 let scoreBadge = null;
+let autoPlayBtn = null;
+
+// Auto-play state
+let isAutoPlaying = false;
 
 // ── Navigation helpers ─────────────────────────────────────────────────────────
 function goMenu() {
   stopListening();
+  stopAutoPlay();
   screen = 'menu';
   render();
 }
 
 function goGame(songId) {
+  stopAutoPlay();
   selectedSong = songId;
   screen = 'game';
   currentIndex = 0;
@@ -52,6 +59,7 @@ function goGame(songId) {
 }
 
 function goFreePlay() {
+  stopAutoPlay();
   screen = 'freeplay';
   render();
 }
@@ -65,6 +73,7 @@ function render() {
   feedbackEl = null;
   progressFill = null;
   scoreBadge = null;
+  autoPlayBtn = null;
 
   if (screen === 'menu') renderMenu();
   else if (screen === 'game') renderGame();
@@ -150,14 +159,28 @@ function renderGame() {
   // Sheet music
   const sheetWrap = document.createElement('div');
   sheetWrap.className = 'sheet-music-wrap';
+  const sheetHeader = document.createElement('div');
+  sheetHeader.className = 'sheet-music-header';
   const sheetTitle = document.createElement('h3');
   sheetTitle.className = 'sheet-music-title';
   sheetTitle.id = 'sheet-title';
   sheetTitle.textContent = `🎼 ${song.title}  –  Note ${currentIndex + 1} of ${song.notes.length}`;
+  const playBtn = document.createElement('button');
+  playBtn.className = 'btn-autoplay';
+  playBtn.id = 'btn-autoplay';
+  playBtn.textContent = '▶ Play Song';
+  sheetHeader.appendChild(sheetTitle);
+  sheetHeader.appendChild(playBtn);
   sheetContainer = document.createElement('div');
-  sheetWrap.appendChild(sheetTitle);
+  sheetWrap.appendChild(sheetHeader);
   sheetWrap.appendChild(sheetContainer);
   div.appendChild(sheetWrap);
+
+  autoPlayBtn = playBtn;
+  playBtn.addEventListener('click', () => {
+    if (isAutoPlaying) stopAutoPlay();
+    else startAutoPlay(song);
+  });
 
   // Feedback
   feedbackEl = document.createElement('div');
@@ -230,13 +253,19 @@ function handleNotePlay(note, song) {
 
     feedbackTimer = setTimeout(() => {
       feedback = null;
-      const next = currentIndex + 1;
-      if (next >= song.notes.length) {
-        completed = true;
-        render();
+      if (isAutoPlaying) {
+        // Auto-play mode: just clear feedback; the song timer advances the note
+        renderFeedbackContent(song.notes[currentIndex]?.note);
       } else {
-        currentIndex = next;
-        updateGameDisplay(song);
+        // Manual mode: advance to next note
+        const next = currentIndex + 1;
+        if (next >= song.notes.length) {
+          completed = true;
+          render();
+        } else {
+          currentIndex = next;
+          updateGameDisplay(song);
+        }
       }
     }, 400);
   } else {
@@ -251,6 +280,8 @@ function handleNotePlay(note, song) {
 }
 
 function updateGameDisplay(song) {
+  if (feedbackTimer) { clearTimeout(feedbackTimer); feedbackTimer = null; }
+
   const expectedNote = currentIndex < song.notes.length
     ? song.notes[currentIndex].note
     : null;
@@ -272,6 +303,39 @@ function updateGameDisplay(song) {
 
   // Update piano highlighting
   if (pianoInstance) pianoInstance.update(expectedNote);
+}
+
+// ── Auto-play helpers ──────────────────────────────────────────────────────────
+function startAutoPlay(song) {
+  isAutoPlaying = true;
+  if (autoPlayBtn) {
+    autoPlayBtn.textContent = '⏹ Stop';
+    autoPlayBtn.classList.add('btn-autoplay--playing');
+  }
+
+  playSong(
+    song.notes,
+    song.tempo,
+    (i) => {
+      if (!isAutoPlaying) return;
+      currentIndex = i;
+      updateGameDisplay(song);
+    },
+    () => {
+      isAutoPlaying = false;
+      completed = true;
+      render();
+    },
+  );
+}
+
+function stopAutoPlay() {
+  isAutoPlaying = false;
+  stopSong();
+  if (autoPlayBtn) {
+    autoPlayBtn.textContent = '▶ Play Song';
+    autoPlayBtn.classList.remove('btn-autoplay--playing');
+  }
 }
 
 // ── Mic control ────────────────────────────────────────────────────────────────

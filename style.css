@@ -186,17 +186,51 @@ button:active {
   margin-bottom: 16px;
 }
 
+.sheet-music-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
 .sheet-music-title {
-  margin: 0 0 8px 10px;
+  margin: 0;
   color: #333;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: normal;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Auto-play button */
+.btn-autoplay {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-autoplay--playing {
+  background: linear-gradient(135deg, #ef5350, #e53935);
 }
 
 /* Scrolling sheet music viewport (game screen) */
 .sheet-scroll-outer {
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   scroll-behavior: smooth;
   width: 100%;
   /* scrollbar hidden for a clean flowing look */
