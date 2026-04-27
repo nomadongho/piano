@@ -23,6 +23,10 @@ function durationToBeats(dur) {
   return 1;
 }
 
+const NOTE_COLOR_CURRENT = '#ff6b35';
+const NOTE_COLOR_PAST    = '#c8c8c8';
+const NOTE_COLOR_FUTURE  = '#222222';
+
 const NOTES_PER_ROW = 8;
 const STAVE_WIDTH = 640;
 const STAVE_X = 10;
@@ -105,13 +109,13 @@ export function initScrollingSheet(container, notes) {
   }
 
   // Apply initial colours (first note highlighted, rest default)
-  allNoteObjects.forEach((sn, i) => applyColor(sn, i === 0 ? '#ff6b35' : '#222222'));
+  allNoteObjects.forEach((sn, i) => applyColor(sn, i === 0 ? NOTE_COLOR_CURRENT : NOTE_COLOR_FUTURE));
 
   function update(currentIndex) {
     allNoteObjects.forEach((sn, i) => {
-      if (i === currentIndex) applyColor(sn, '#ff6b35');
-      else if (i < currentIndex) applyColor(sn, '#c8c8c8');
-      else applyColor(sn, '#222222');
+      if (i === currentIndex) applyColor(sn, NOTE_COLOR_CURRENT);
+      else if (i < currentIndex) applyColor(sn, NOTE_COLOR_PAST);
+      else applyColor(sn, NOTE_COLOR_FUTURE);
     });
 
     // Smooth-scroll so the current row stays in the top half of the viewport
@@ -155,7 +159,7 @@ export function renderFreePlaySheet(container, playedNotes) {
     const sn = new StaveNote({ keys, duration: n.duration || 'q', autoStem: true });
     if (accidental) sn.addModifier(new Accidental(accidental), 0);
     if (i === visible.length - 1) {
-      sn.setStyle({ fillStyle: '#ff6b35', strokeStyle: '#ff6b35' });
+      sn.setStyle({ fillStyle: NOTE_COLOR_CURRENT, strokeStyle: NOTE_COLOR_CURRENT });
     }
     return sn;
   });
