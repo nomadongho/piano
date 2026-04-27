@@ -1,4 +1,4 @@
-export const NOTE_FREQUENCIES: Record<string, number> = {
+export const NOTE_FREQUENCIES = {
   'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
   'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
   'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
@@ -7,9 +7,9 @@ export const NOTE_FREQUENCIES: Record<string, number> = {
   'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
 };
 
-export function frequencyToNote(freq: number): string | null {
+export function frequencyToNote(freq) {
   let minDiff = Infinity;
-  let closestNote: string | null = null;
+  let closestNote = null;
   for (const [note, f] of Object.entries(NOTE_FREQUENCIES)) {
     const diff = Math.abs(1200 * Math.log2(freq / f));
     if (diff < minDiff) { minDiff = diff; closestNote = note; }
@@ -17,7 +17,7 @@ export function frequencyToNote(freq: number): string | null {
   return minDiff < 50 ? closestNote : null;
 }
 
-export function autoCorrelate(buffer: Float32Array, sampleRate: number): number {
+export function autoCorrelate(buffer, sampleRate) {
   const SIZE = buffer.length;
   const rms = Math.sqrt(buffer.reduce((s, v) => s + v * v, 0) / SIZE);
   if (rms < 0.01) return -1;

@@ -1,18 +1,4 @@
-export interface SongNote {
-  note: string;
-  duration: string; // 'w' | 'h' | 'q' | '8'
-}
-
-export interface Song {
-  id: string;
-  title: string;
-  level: number;
-  tempo: number;
-  notes: SongNote[];
-  emoji: string;
-}
-
-export const SONGS: Song[] = [
+export const SONGS = [
   {
     id: 'twinkle',
     title: 'Twinkle Twinkle Little Star',
