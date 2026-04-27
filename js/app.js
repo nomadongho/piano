@@ -1,6 +1,6 @@
 import { SONGS } from './songs.js';
 import { createPiano } from './piano.js';
-import { renderSheetMusic } from './sheet-music.js';
+import { initScrollingSheet, renderFreePlaySheet } from './sheet-music.js';
 import { startListening, stopListening, isListening } from './pitch-detector.js';
 
 const LEVEL_COLORS = [
@@ -28,6 +28,7 @@ let feedbackTimer = null;
 // References to live DOM elements updated in-place during game
 let pianoInstance = null;
 let sheetContainer = null;
+let sheetInstance = null;
 let feedbackEl = null;
 let progressFill = null;
 let scoreBadge = null;
@@ -60,6 +61,7 @@ function render() {
   app.innerHTML = '';
   pianoInstance = null;
   sheetContainer = null;
+  sheetInstance = null;
   feedbackEl = null;
   progressFill = null;
   scoreBadge = null;
@@ -151,7 +153,7 @@ function renderGame() {
   const sheetTitle = document.createElement('h3');
   sheetTitle.className = 'sheet-music-title';
   sheetTitle.id = 'sheet-title';
-  sheetTitle.textContent = `Note ${currentIndex + 1} of ${song.notes.length}`;
+  sheetTitle.textContent = `🎼 ${song.title}  –  Note ${currentIndex + 1} of ${song.notes.length}`;
   sheetContainer = document.createElement('div');
   sheetWrap.appendChild(sheetTitle);
   sheetWrap.appendChild(sheetContainer);
@@ -183,7 +185,8 @@ function renderGame() {
 
   // Render sheet music after DOM is attached
   requestAnimationFrame(() => {
-    renderSheetMusic(sheetContainer, song.notes, currentIndex);
+    sheetInstance = initScrollingSheet(sheetContainer, song.notes);
+    sheetInstance.update(currentIndex);
   });
 }
 
@@ -258,12 +261,10 @@ function updateGameDisplay(song) {
 
   // Update sheet music title
   const titleEl = document.getElementById('sheet-title');
-  if (titleEl) titleEl.textContent = `Note ${currentIndex + 1} of ${song.notes.length}`;
+  if (titleEl) titleEl.textContent = `🎼 ${song.title}  –  Note ${currentIndex + 1} of ${song.notes.length}`;
 
   // Update sheet music
-  if (sheetContainer) {
-    renderSheetMusic(sheetContainer, song.notes, currentIndex);
-  }
+  if (sheetInstance) sheetInstance.update(currentIndex);
 
   // Update feedback
   feedback = null;
@@ -335,11 +336,30 @@ function renderFreePlay() {
   subtitle.textContent = 'Play whatever you like! No rules here 🎶';
   div.appendChild(subtitle);
 
+  // Sheet music display for free play
+  const sheetWrap = document.createElement('div');
+  sheetWrap.className = 'sheet-music-wrap';
+  const sheetTitle = document.createElement('h3');
+  sheetTitle.className = 'sheet-music-title';
+  sheetTitle.textContent = '🎼 Your notes';
+  const fpSheetContainer = document.createElement('div');
+  sheetWrap.appendChild(sheetTitle);
+  sheetWrap.appendChild(fpSheetContainer);
+  div.appendChild(sheetWrap);
+
   const pianoContainer = document.createElement('div');
   div.appendChild(pianoContainer);
   app.appendChild(div);
 
-  createPiano(pianoContainer);
+  const fpNotes = [];
+  renderFreePlaySheet(fpSheetContainer, fpNotes);
+
+  createPiano(pianoContainer, {
+    onNotePlay: (note) => {
+      fpNotes.push({ note, duration: 'q' });
+      renderFreePlaySheet(fpSheetContainer, fpNotes);
+    },
+  });
 
   header.querySelector('#btn-back-freeplay').addEventListener('click', goMenu);
 }
